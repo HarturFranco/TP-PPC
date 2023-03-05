@@ -8,6 +8,10 @@
 #include <cstdlib>
 #include <ctime>
 #include <limits>
+#include <cstring>
+
+#include "mpi.h"
+
 using namespace std;
 
 vector<vector<float>> readCsvFile(const string& filename) {
@@ -132,28 +136,65 @@ vector<dataPoint> kMeans(vector<dataPoint>& dataPoints, int k, long maxIteration
 }
 
 
-int main() {
+int main(int argc, char** argv) {
+    MPI_Init(&argc, &argv);
+
+    int rank, size;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+
     vector<vector<float>> data = readCsvFile("./archive/diabetes_012_health_indicators_BRFSS2015.csv");
     vector<dataPoint> points;
 
+    int n_rows = data.size();
+    int n_cols = data[0].size();
+    int block_size = n_rows * n_cols / size;
+
+
+    float array[20000][22];
+    vector<float> flattened_data(n_rows * n_cols);
+    int index = 0;
+    for (int i = 0; i < n_rows; i++) {
+        for (int j = 0; j < n_cols; j++) {
+            flattened_data[index++] = data[i][j];
+            // cout << flattened_data[index -1] << " ";
+        }
+    }
+    // cout << "size: " <<flattened_data.size() << endl;
+
+    std::vector<float> block(block_size);
+    MPI_Scatter(flattened_data.data(), block_size, MPI_FLOAT, block.data(), block_size, MPI_FLOAT, 0, MPI_COMM_WORLD);
+
+    // Receive the block of data
+    std::vector<std::vector<float>> received_data(n_rows / size, std::vector<float>(n_cols));
+    index = 0;
+    for (int i = 0; i < n_rows / size; i++) {
+        for (int j = 0; j < n_cols; j++) {
+            received_data[i][j] = block[index++];
+        }
+    }
+
+    // cout << "p_id: " << rank << " | " << received_data.size() << endl;
     
-    for (int i = 0; i < data.size(); i++)
+
+    for (int i = 0; i < received_data.size(); i++)
     {
         dataPoint point = {-1, {}};
-        for (int j = 1; j < data[i].size(); j++)
+        for (int j = 1; j < received_data[i].size(); j++)
         {
             
-            point.features.push_back(data[i][j]);
+            point.features.push_back(received_data[i][j]);
         }
         points.push_back(point);
     }
-    
-    
+    cout << "p_id: " << rank << " | " << points.size() << endl;
+    // cout << endl;
+
     int k = 3; // Number of clusters
     long maxIterations = 100000; // Maximum number of iterations for k-means
     vector<dataPoint> centroids = kMeans(points, k, maxIterations);
-    
-    
+
+    cout << "p_id: " << rank << ": " << endl;
     for (int i = 0; i < centroids.size(); i++)
     {
         cout << "Centroid " << i << ": " << endl;
@@ -163,6 +204,36 @@ int main() {
         }
         cout << endl;
     }
+    
+    MPI_Finalize();
+    // memset(array, 0, sizeof(array));
+
+    // for (int i = 0; i < data.size(); i++)
+    // {
+    //     dataPoint point = {-1, {}};
+    //     for (int j = 1; j < data[i].size(); j++)
+    //     {
+            
+    //         point.features.push_back(data[i][j]);
+    //     }
+    //     points.push_back(point);
+    // }
+    
+    
+    // int k = 3; // Number of clusters
+    // long maxIterations = 100000; // Maximum number of iterations for k-means
+    // vector<dataPoint> centroids = kMeans(points, k, maxIterations);
+    
+    
+    // for (int i = 0; i < centroids.size(); i++)
+    // {
+    //     cout << "Centroid " << i << ": " << endl;
+    //     for (int j = 0; j < centroids[i].features.size(); j++)
+    //     {
+    //          cout << centroids[i].features[j] << " ";
+    //     }
+    //     cout << endl;
+    // }
     
 
     //  for (dataPoint& point : points) {
