@@ -57,19 +57,6 @@ float distance(const dataPoint& p1, const dataPoint& p2) {
 }
 
 void assignClusters(vector<dataPoint>& dataPoints, vector<dataPoint>& centroids) {
-    // for (int i = 0; i < dataPoints.size(); i++){
-    //     float minDist = numeric_limits<float>::max();
-    //     int closestCentroid= -1;
-    //     for (int j = 0; j < centroids.size(); j++){
-    //         float dist = distance(dataPoints[i], centroids[j]);
-    //         if (dist < minDist){
-    //             minDist = dist;
-    //             closestCentroid = i;
-    //         }
-    //     }
-    //     dataPoints[i].cluster = closestCentroid;
-
-    // }
     
     for (dataPoint& point : dataPoints) {
         float minDist = numeric_limits<float>::max();
@@ -120,6 +107,7 @@ vector<dataPoint> kMeans(vector<dataPoint>& dataPoints, int k, long maxIteration
 
     int iterations = 0;
     while (iterations < maxIterations) {
+    // while (true) {
         assignClusters(dataPoints, centroids);
         vector<dataPoint> newCentroids = calculateCentroids(dataPoints, k);
         // If centroids have not moved, terminate early
@@ -131,10 +119,12 @@ vector<dataPoint> kMeans(vector<dataPoint>& dataPoints, int k, long maxIteration
             }
         }
         if (convergence) {
+            cout << "convergiu: " << iterations;
             break;
-            cout << "convergiu";
+            
         }
         centroids = newCentroids;
+        cout << "IT: " << iterations << endl;
         iterations++;
     }
     return centroids;
@@ -160,19 +150,19 @@ int main() {
     
     
     int k = 3; // Number of clusters
-    long maxIterations = 99999999999999999; // Maximum number of iterations for k-means
+    long maxIterations = 100000; // Maximum number of iterations for k-means
     vector<dataPoint> centroids = kMeans(points, k, maxIterations);
     
-
-    // for (int i = 0; i < centroids.size(); i++)
-    // {
-    //     cout << "Centroid " << i << ": " << endl;
-    //     for (int j = 0; j < centroids[i].features.size(); j++)
-    //     {
-    //          cout << centroids[i].features[j] << " ";
-    //     }
-    //     cout << endl;
-    // }
+    
+    for (int i = 0; i < centroids.size(); i++)
+    {
+        cout << "Centroid " << i << ": " << endl;
+        for (int j = 0; j < centroids[i].features.size(); j++)
+        {
+             cout << centroids[i].features[j] << " ";
+        }
+        cout << endl;
+    }
     
 
     //  for (dataPoint& point : points) {
