@@ -104,13 +104,13 @@ vector<dataPoint> kMeans(vector<dataPoint>& dataPoints, int k, long maxIteration
 
     vector<dataPoint> centroids(k);
 
-    // srand(time(0));
-    // for (int i = 0; i < k; i++) {
-    //     centroids[i] = dataPoints[rand() % dataPoints.size()];
-    // }
-    centroids[0] = dataPoints[0];
-    centroids[1] = dataPoints[8];
-    centroids[2] = dataPoints[64];
+    srand(time(0));
+    for (int i = 0; i < k; i++) {
+        centroids[i] = dataPoints[rand() % dataPoints.size()];
+    }
+//     centroids[0] = dataPoints[0];
+//     centroids[1] = dataPoints[8];
+//     centroids[2] = dataPoints[64];
 
     int iterations = 0;
     // while (iterations < maxIterations) {
@@ -194,16 +194,16 @@ int main(int argc, char** argv) {
     long maxIterations = 100000; // Maximum number of iterations for k-means
     vector<dataPoint> centroids = kMeans(points, k, maxIterations);
     
-    cout << endl << "p_id: " << rank << ": " << endl;
-    for (int i = 0; i < centroids.size(); i++)
-    {
-        cout << "Centroid " << i << ": " << endl;
-        for (int j = 0; j < centroids[i].features.size(); j++)
-        {
-             cout << centroids[i].features[j] << " ";
-        }
-        cout << endl;
-    }
+//     cout << endl << "p_id: " << rank << ": " << endl;
+//     for (int i = 0; i < centroids.size(); i++)
+//     {
+//         cout << "Centroid " << i << ": " << endl;
+//         for (int j = 0; j < centroids[i].features.size(); j++)
+//         {
+//              cout << centroids[i].features[j] << " ";
+//         }
+//         cout << endl;
+//     }
 
    
     int n_features = centroids[0].features.size();
@@ -285,73 +285,13 @@ int main(int argc, char** argv) {
         }
         end = MPI_Wtime();
         cout << endl << "Exec. Time: " << end - start << endl;
-        cout << endl << "Exec. Time: " << end_merge - start_merge << endl;
+        cout << endl << "Merge Exec. Time: " << end_merge - start_merge << endl;
     }
     
 
     
     MPI_Finalize();
-    // memset(array, 0, sizeof(array));
-
-    // for (int i = 0; i < data.size(); i++)
-    // {
-    //     dataPoint point = {-1, {}};
-    //     for (int j = 1; j < data[i].size(); j++)
-    //     {
-            
-    //         point.features.push_back(data[i][j]);
-    //     }
-    //     points.push_back(point);
-    // }
     
-    
-    // int k = 3; // Number of clusters
-    // long maxIterations = 100000; // Maximum number of iterations for k-means
-    // vector<dataPoint> centroids = kMeans(points, k, maxIterations);
-    
-    
-    // for (int i = 0; i < centroids.size(); i++)
-    // {
-    //     cout << "Centroid " << i << ": " << endl;
-    //     for (int j = 0; j < centroids[i].features.size(); j++)
-    //     {
-    //          cout << centroids[i].features[j] << " ";
-    //     }
-    //     cout << endl;
-    // }
-    
-
-    //  for (dataPoint& point : points) {
-    //     cout << "Point Cluster " << point.cluster << endl << "Feat: ";
-    //     for (int i = 0; i < point.features.size(); i++)
-    //     {
-    //         cout << point.features[i] << " ";
-    //     }
-    //     cout << endl;
-        
-    //  }
-    
-
-    // cout << "N Features in point: " << points.size() << endl;
-
-
-    // cout << "data 0: " << endl;
-    // for (int j = 1; j < data[0].size(); j++)
-    // {
-    //     cout << data[0][j] << " ";
-    // }
-    // cout << endl << points[0].cluster << " point features: " << endl;
-    // for (int j = 0; j < points[0].features.size(); j++)
-    // {
-    //     cout << points[0].features[j] << " ";
-    // }
-    // // Print the data
-    // for (const auto& row : data) {
-    //     for (const auto& value : row) {
-    //         cout << value << " ";
-    //     }
-    //     cout << endl;
-    // }
 
     return 0;
 } 
